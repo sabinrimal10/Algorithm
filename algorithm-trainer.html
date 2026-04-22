@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Trainer — Year 9 Game Design</title>
+<style>
+/* =========================================================
+   ALGORITHM TRAINER - Year 9
+   Teaches sequence, selection, and repetition through
+   trace-predict-debug challenges that mirror Scratch logic.
+   
+   Accessibility:
+   - 17px+ base font, readable line height
+   - High contrast (WCAG AA compliant pairs)
+   - Visible focus ring
+   - aria-live feedback
+   - Semantic HTML landmarks
+   - Keyboard navigable
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, sans-serif;
+  background: #1a1d29;
+  color: #e8eaed;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+header.hero {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(79,70,229,0.25);
+}
+header.hero h1 {
+  margin: 0 0 6px 0;
+  font-size: 26px;
+  color: #fff;
+}
+header.hero p {
+  margin: 0;
+  color: #e0e7ff;
+  font-size: 15px;
+}
+.progress-bar {
+  margin-top: 16px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  height: 10px;
+  overflow: hidden;
+}
+.progress-bar__fill {
+  background: #fbbf24;
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #e0e7ff;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.challenge-card {
+  background: #242837;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid #343849;
+}
+.challenge-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.tag-sequence { background: #065f46; color: #d1fae5; }
+.tag-selection { background: #1e40af; color: #dbeafe; }
+.tag-repetition { background: #9a3412; color: #fed7aa; }
+.tag-debug { background: #7e22ce; color: #f3e8ff; }
+
+h2.challenge-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  color: #fff;
+}
+.challenge-prompt {
+  color: #cbd5e1;
+  margin-bottom: 18px;
+  font-size: 15px;
+}
+
+/* Scratch-style code blocks */
+.code-block {
+  background: #0f1117;
+  border-radius: 10px;
+  padding: 16px;
+  font-family: "Menlo", "Consolas", "Courier New", monospace;
+  font-size: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #343849;
+  overflow-x: auto;
+}
+.block-line { padding: 2px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+.block-line--indent-1 { padding-left: 22px; }
+.block-line--indent-2 { padding-left: 44px; }
+.block-line--highlight { background: rgba(251, 191, 36, 0.15); border-radius: 4px; }
+
+.pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 14px;
+  margin-right: 4px;
+  font-weight: 500;
+  color: #fff;
+  font-size: 13px;
+}
+.pill-event { background: #d97706; }
+.pill-control { background: #ea580c; }
+.pill-motion { background: #2563eb; }
+.pill-looks { background: #7c3aed; }
+.pill-data { background: #dc2626; }
+.pill-sensing { background: #0891b2; }
+.pill-operator { background: #16a34a; }
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 600px) {
+  .choices { grid-template-columns: 1fr 1fr; }
+}
+.choice-btn {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 14px 16px;
+  background: #343849;
+  color: #e8eaed;
+  border: 2px solid #434757;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+.choice-btn:hover:not(:disabled) {
+  background: #3d4152;
+  border-color: #6366f1;
+  transform: translateY(-1px);
+}
+.choice-btn:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+.choice-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+.choice-btn.correct {
+  background: #065f46;
+  border-color: #10b981;
+  color: #d1fae5;
+}
+.choice-btn.incorrect {
+  background: #7f1d1d;
+  border-color: #ef4444;
+  color: #fecaca;
+}
+
+.feedback {
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin: 16px 0 0 0;
+  font-size: 15px;
+  border-left: 4px solid;
+}
+.feedback--correct {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  color: #a7f3d0;
+}
+.feedback--incorrect {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #fecaca;
+}
+.feedback strong { display: block; margin-bottom: 4px; color: #fff; }
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn-primary, .btn-secondary {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: #fbbf24;
+  color: #1a1d29;
+}
+.btn-primary:hover { background: #f59e0b; }
+.btn-secondary {
+  background: transparent;
+  color: #cbd5e1;
+  border: 2px solid #434757;
+}
+.btn-secondary:hover { border-color: #6366f1; color: #fff; }
+.btn-primary:focus-visible, .btn-secondary:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+.summary-card {
+  background: #242837;
+  border: 2px solid #fbbf24;
+  padding: 30px;
+  border-radius: 14px;
+  text-align: center;
+}
+.summary-card h2 { margin: 0 0 8px 0; color: #fff; }
+.summary-score {
+  font-size: 56px;
+  font-weight: bold;
+  color: #fbbf24;
+  margin: 12px 0;
+}
+.summary-breakdown {
+  text-align: left;
+  background: #0f1117;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 20px 0;
+}
+.summary-breakdown h3 { margin: 0 0 10px 0; font-size: 16px; color: #e0e7ff; }
+.summary-breakdown p { margin: 4px 0; font-size: 14px; color: #cbd5e1; }
+
+footer.site-footer {
+  margin-top: 32px;
+  padding: 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  border-top: 1px solid #343849;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="hero" role="banner">
+  <h1>🎮 Algorithm Trainer</h1>
+  <p>Year 9 Digital Technologies — Practise sequence, selection, and repetition before you build your game in Scratch.</p>
+  <div class="progress-bar" aria-hidden="true"><div class="progress-bar__fill" id="progressFill"></div></div>
+  <div class="progress-meta">
+    <span id="progressText">Challenge 1 of 5</span>
+    <span id="scoreText">Score: 0</span>
+  </div>
+</header>
+
+<main id="main" aria-live="polite"></main>
+
+<footer class="site-footer">
+  <p>Algorithm Trainer · Single-file HTML/CSS/JS artefact · Designed for Australian Curriculum v9.0 Year 9-10 Digital Technologies</p>
+</footer>
+
+</div>
+
+<script>
+/* =========================================================
+   CHALLENGE BANK
+   Five progressively harder trace-predict-debug challenges.
+   Each targets a specific computational-thinking sub-concept.
+   ========================================================= */
+const challenges = [
+  {
+    id: 1,
+    tag: "Sequence",
+    tagClass: "tag-sequence",
+    title: "Trace the sequence",
+    prompt: "A student wrote this Scratch code for their character's intro. Read the blocks in order. <strong>What will the sprite do?</strong>",
+    code: [
+      { pill: 'pill-event', text: 'when', code: 'green flag clicked' },
+      { pill: 'pill-motion', text: 'set', code: 'x to 0, y to 0', indent: 1 },
+      { pill: 'pill-looks', text: 'say', code: '"Ready?" for 2 seconds', indent: 1 },
+      { pill: 'pill-looks', text: 'say', code: '"Go!" for 1 second', indent: 1 },
+      { pill: 'pill-motion', text: 'move', code: '100 steps', indent: 1 }
+    ],
+    choices: [
+      { text: 'Moves 100 steps, then says "Ready?" then "Go!"', correct: false },
+      { text: 'Goes to the centre, says "Ready?" for 2s, says "Go!" for 1s, then moves 100 steps', correct: true },
+      { text: 'Says "Ready?" and "Go!" at the same time, then moves', correct: false },
+      { text: 'Moves 100 steps and says "Ready?" at the same time', correct: false }
+    ],
+    feedback: {
+      correct: "Correct. Scratch runs blocks top-to-bottom, one after another. This is <em>sequence</em> — the most fundamental control structure. Each block completes before the next begins.",
+      incorrect: "Not quite. Scratch executes blocks strictly <em>top-to-bottom</em>, one at a time. Nothing runs in parallel in a single script, and the order in the script is the order of execution."
+    }
+  },
+  {
+    id: 2,
+    tag: "Selection",
+    tagClass: "tag-selection",
+    title: "Predict the branch",
+    prompt: "In the dodge game, the score variable is currently <strong>42</strong>. What will this if-block say?",
+    code: [
+      { pill: 'pill-control', text: 'if', code: '( score > 50 ) then', indent: 0 },
+      { pill: 'pill-looks', text: 'say', code: '"High score! 🏆"', indent: 1 },
+      { pill: 'pill-control', text: 'else', code: '', indent: 0 },
+      { pill: 'pill-looks', text: 'say', code: '"Try again!"', indent: 1 }
+    ],
+    choices: [
+      { text: '"High score! 🏆"', correct: false },
+      { text: '"Try again!"', correct: true },
+      { text: 'Both messages, one after the other', correct: false },
+      { text: 'Nothing — the condition is false so the block is skipped entirely', correct: false }
+    ],
+    feedback: {
+      correct: "Correct. Because 42 is not greater than 50, the condition evaluates to <em>false</em>. The <code>else</code> branch runs, so the sprite says \"Try again!\". This is <em>selection</em> (also called <em>branching</em>): the program chooses between paths based on a condition.",
+      incorrect: "Evaluate the condition first: <code>score > 50</code> with score=42 is <strong>false</strong>. When an if-else's condition is false, the else branch runs. Only one branch runs, never both."
+    }
+  },
+  {
+    id: 3,
+    tag: "Repetition",
+    tagClass: "tag-repetition",
+    title: "Count the loop",
+    prompt: "How many times will the sprite say \"Dodge!\" before this script stops?",
+    code: [
+      { pill: 'pill-data', text: 'set', code: 'lives to 3', indent: 0 },
+      { pill: 'pill-control', text: 'repeat until', code: '( lives = 0 )', indent: 0 },
+      { pill: 'pill-looks', text: 'say', code: '"Dodge!" for 1 second', indent: 1 },
+      { pill: 'pill-data', text: 'change', code: 'lives by -1', indent: 1 }
+    ],
+    choices: [
+      { text: '0 times — the loop never runs', correct: false },
+      { text: '2 times', correct: false },
+      { text: '3 times', correct: true },
+      { text: 'Forever — it\'s an infinite loop', correct: false }
+    ],
+    feedback: {
+      correct: "Correct. The loop runs while <code>lives ≠ 0</code>. Starting at 3, it runs (lives→2), runs again (lives→1), runs once more (lives→0), then the condition becomes true and the loop stops. That's 3 iterations — this pattern is called a <em>counter-controlled loop</em>.",
+      incorrect: "Trace it step by step. Start: lives=3. Check: is lives=0? No, run body → lives=2. Check: is lives=0? No, run body → lives=1. Check: is lives=0? No, run body → lives=0. Check: is lives=0? Yes, stop. The body ran 3 times."
+    }
+  },
+  {
+    id: 4,
+    tag: "Nested logic",
+    tagClass: "tag-selection",
+    title: "Trace the nested if",
+    prompt: "The player has <strong>lives = 2</strong> and <strong>score = 75</strong>. What happens?",
+    code: [
+      { pill: 'pill-control', text: 'if', code: '( lives > 0 ) then', indent: 0 },
+      { pill: 'pill-control', text: 'if', code: '( score > 50 ) then', indent: 1 },
+      { pill: 'pill-looks', text: 'say', code: '"Hero!"', indent: 2 },
+      { pill: 'pill-control', text: 'else', code: '', indent: 1 },
+      { pill: 'pill-looks', text: 'say', code: '"Keep going!"', indent: 2 },
+      { pill: 'pill-control', text: 'else', code: '', indent: 0 },
+      { pill: 'pill-looks', text: 'say', code: '"Game over"', indent: 1 }
+    ],
+    choices: [
+      { text: '"Hero!"', correct: true },
+      { text: '"Keep going!"', correct: false },
+      { text: '"Game over"', correct: false },
+      { text: 'All three messages', correct: false }
+    ],
+    feedback: {
+      correct: "Correct. Outer condition: lives(2) > 0 → true, enter outer-if. Inner condition: score(75) > 50 → true, say \"Hero!\". The outer <code>else</code> and inner <code>else</code> are skipped. <em>Nested selection</em> lets programs make multi-step decisions.",
+      incorrect: "Trace carefully. Outer: is lives > 0? (2 > 0 = true) → enter outer-if. Inner: is score > 50? (75 > 50 = true) → run \"Hero!\". Both conditions were true, so we reach the innermost branch."
+    }
+  },
+  {
+    id: 5,
+    tag: "Debugging",
+    tagClass: "tag-debug",
+    title: "Find the bug",
+    prompt: "A classmate's dodge game has a bug. When the player touches an obstacle, the game <strong>should</strong> lose 1 life, but instead the score keeps increasing! Read the code and spot the bug.",
+    code: [
+      { pill: 'pill-event', text: 'when', code: 'green flag clicked' },
+      { pill: 'pill-control', text: 'forever', code: '', indent: 0 },
+      { pill: 'pill-control', text: 'if', code: '( touching obstacle? ) then', indent: 1 },
+      { pill: 'pill-data', text: 'change', code: 'score by 1', indent: 2, highlight: true },
+      { pill: 'pill-looks', text: 'say', code: '"Ouch!"', indent: 2 }
+    ],
+    choices: [
+      { text: 'The forever loop should be a repeat-until loop', correct: false },
+      { text: 'The highlighted line should be "change lives by -1", not "change score by 1"', correct: true },
+      { text: 'The "touching obstacle?" check should be outside the forever loop', correct: false },
+      { text: 'The "say Ouch" block should come before the change block', correct: false }
+    ],
+    feedback: {
+      correct: "Correct. The logic is right (forever-loop with an if-check), but the highlighted action is wrong — it's modifying the wrong variable. This is a classic <em>semantic bug</em>: the code runs without errors but doesn't do what the programmer intended. Always validate against your expected behaviour (AC9TDI10P06).",
+      incorrect: "Look at what the bug report says: 'should lose 1 life, instead score keeps increasing'. That tells you the <em>action</em> inside the if-block is wrong, not the loop or the condition. Which line is doing the wrong thing?"
+    }
+  }
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let currentIdx = 0;
+let score = 0;
+let attempts = []; // per-challenge: {firstTry: bool, correct: bool}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderChallenge() {
+  const c = challenges[currentIdx];
+  const main = document.getElementById('main');
+  
+  // Progress bar
+  document.getElementById('progressFill').style.width = `${(currentIdx / challenges.length) * 100}%`;
+  document.getElementById('progressText').textContent = `Challenge ${currentIdx + 1} of ${challenges.length}`;
+  document.getElementById('scoreText').textContent = `Score: ${score}`;
+
+  let html = `<article class="challenge-card" aria-labelledby="ch-title-${c.id}">`;
+  html += `<span class="challenge-tag ${c.tagClass}">${c.tag}</span>`;
+  html += `<h2 class="challenge-title" id="ch-title-${c.id}">${c.title}</h2>`;
+  html += `<p class="challenge-prompt">${c.prompt}</p>`;
+
+  // Render code block
+  html += `<div class="code-block" role="region" aria-label="Scratch-style code">`;
+  c.code.forEach(line => {
+    const indentClass = line.indent ? ` block-line--indent-${line.indent}` : '';
+    const hlClass = line.highlight ? ' block-line--highlight' : '';
+    html += `<div class="block-line${indentClass}${hlClass}">`;
+    html += `<span class="pill ${line.pill}">${line.text}</span>`;
+    html += `<span>${line.code}</span>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  // Render choices
+  html += `<div class="choices" role="group" aria-label="Answer options">`;
+  c.choices.forEach((choice, i) => {
+    html += `<button class="choice-btn" data-idx="${i}" onclick="pickAnswer(${i})">${choice.text}</button>`;
+  });
+  html += `</div>`;
+
+  html += `<div id="feedback-slot"></div>`;
+  html += `</article>`;
+  main.innerHTML = html;
+}
+
+function pickAnswer(i) {
+  const c = challenges[currentIdx];
+  const choice = c.choices[i];
+  const buttons = document.querySelectorAll('.choice-btn');
+  
+  // Check if this is a retry (we already logged an attempt for this challenge)
+  const alreadyAttempted = attempts.length > currentIdx;
+  
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === i) {
+      btn.classList.add(choice.correct ? 'correct' : 'incorrect');
+    } else if (c.choices[idx].correct) {
+      btn.classList.add('correct');
+    }
+  });
+
+  // Scoring: full point only if first try correct
+  if (!alreadyAttempted) {
+    attempts.push({ firstTry: choice.correct, correct: choice.correct });
+    if (choice.correct) score++;
+  } else {
+    // Update the existing attempt
+    attempts[currentIdx].correct = choice.correct;
+  }
+  
+  document.getElementById('scoreText').textContent = `Score: ${score}`;
+
+  // Render feedback
+  const slot = document.getElementById('feedback-slot');
+  const fbClass = choice.correct ? 'feedback--correct' : 'feedback--incorrect';
+  const fbLabel = choice.correct ? '✓ Correct' : '✗ Not quite';
+  const fbText = choice.correct ? c.feedback.correct : c.feedback.incorrect;
+  
+  let actionsHtml = '';
+  if (choice.correct) {
+    if (currentIdx < challenges.length - 1) {
+      actionsHtml = `<div class="actions"><button class="btn-primary" onclick="nextChallenge()">Next challenge →</button></div>`;
+    } else {
+      actionsHtml = `<div class="actions"><button class="btn-primary" onclick="showSummary()">See results →</button></div>`;
+    }
+  } else {
+    actionsHtml = `<div class="actions"><button class="btn-secondary" onclick="retryChallenge()">Try again</button></div>`;
+  }
+  
+  slot.innerHTML = `<div class="feedback ${fbClass}" role="status"><strong>${fbLabel}</strong>${fbText}</div>${actionsHtml}`;
+}
+
+function nextChallenge() {
+  currentIdx++;
+  renderChallenge();
+}
+
+function retryChallenge() {
+  renderChallenge();
+}
+
+function showSummary() {
+  const main = document.getElementById('main');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressText').textContent = `Complete!`;
+
+  const firstTryCount = attempts.filter(a => a.firstTry).length;
+  const totalCorrect = attempts.filter(a => a.correct).length;
+  const pct = Math.round((firstTryCount / challenges.length) * 100);
+  
+  let level;
+  if (pct >= 80) level = "You're ready to design your own game from scratch. Move on to the extension brief.";
+  else if (pct >= 60) level = "Solid. Work through the worked example, then start your own game design.";
+  else level = "Revisit the Lesson 1 unplugged activity with a peer before building. Re-run this trainer — spaced practice helps.";
+
+  main.innerHTML = `
+    <div class="summary-card" role="status">
+      <h2>🎯 Trainer complete</h2>
+      <div class="summary-score">${firstTryCount} / ${challenges.length}</div>
+      <p>First-try score. You attempted ${totalCorrect}/${challenges.length} correctly overall.</p>
+      <div class="summary-breakdown">
+        <h3>Where to next</h3>
+        <p>${level}</p>
+      </div>
+      <div class="actions" style="justify-content:center;">
+        <button class="btn-primary" onclick="restart()">Restart trainer</button>
+      </div>
+    </div>`;
+}
+
+function restart() {
+  currentIdx = 0;
+  score = 0;
+  attempts = [];
+  renderChallenge();
+}
+
+// Start
+renderChallenge();
+</script>
+</body>
+</html>
